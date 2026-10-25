@@ -1,0 +1,28 @@
+{
+	"schemaVersion": 1,
+	"id": "squeegee",
+	"version": "${version}",
+	"name": "Squeegee",
+	"description": "Just a clear chat mod, nothing more.",
+	"authors": [
+		"abdo9616"
+	],
+	"contact": {
+		"homepage": "https://github.com/abdo9616/Squeegee",
+		"sources": "https://github.com/abdo9616/Squeegee"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/squeegee/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.example.squeegee.Squeegee"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.1",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
