@@ -1,5 +1,6 @@
 package com.example.squeegee;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permission;
@@ -29,5 +30,9 @@ final class Compat {
 
     static boolean hasTag(ServerPlayer player, String tag) {
         return player.entityTags().contains(tag);
+    }
+
+    static ChatFormatting getAnnouncementColor(String name) {
+        return ChatFormatting.getByName(name);
     }
 }

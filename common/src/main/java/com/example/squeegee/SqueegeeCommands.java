@@ -30,7 +30,7 @@ public final class SqueegeeCommands {
         }
 
         dispatcher.register(Commands.literal("squeegee")
-                .requires(SqueegeeAccess::canUseStaffCommands)
+                .requires(SqueegeeAccess::canReloadConfig)
                 .then(Commands.literal("reload")
                         .executes(context -> reload(context.getSource()))));
     }
@@ -65,7 +65,7 @@ public final class SqueegeeCommands {
     private static Component buildAnnouncement(SqueegeeConfig config, String name, String reason) {
         String template = reason.isEmpty() ? config.announceFormat : config.announceReasonFormat;
         String text = template.replace("{player}", name).replace("{reason}", reason);
-        ChatFormatting color = ChatFormatting.getByName(config.announceColor);
+        ChatFormatting color = Compat.getAnnouncementColor(config.announceColor);
         return Component.literal(text).withStyle(color == null ? ChatFormatting.RED : color);
     }
 

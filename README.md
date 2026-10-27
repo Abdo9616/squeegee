@@ -1,33 +1,97 @@
+<img src="fabric/26.3/src/main/resources/assets/squeegee/icon.png" alt="Squeegee icon" width="128" height="128" />
+
 # Squeegee
 
-Squeegee is a server-side staff utility for clearing the chat of every online
-player with a red announcement. Vanilla clients can join a server running it;
-no client installation is required.
+[![Get it on Modrinth](https://img.shields.io/badge/Get%20it%20on-Modrinth-black?style=for-the-badge&logo=modrinth&logoColor=00AF5C)](https://modrinth.com/project/)
+<a href="https://www.curseforge.com/minecraft/mc-mods/">
+  <img
+    alt="Get it on CurseForge"
+    src="https://img.shields.io/badge/Get%20it%20on-CurseForge-f16436?style=for-the-badge&logo=curseforge&logoColor=white"
+  />
+</a>
 
-Commands are `/clearchat`, `/cc`, `/cls`, and `/wipe`. Each accepts an optional
-reason, for example `/cc spam`. Staff access is controlled by operator level,
-entity tags, and the singleplayer/LAN host setting in `config/squeegee.json`.
-The `/squeegee reload` command reloads that file and refreshes command trees.
+Squeegee is a lightweight server-side chat cleanup utility for Minecraft servers.
+It lets staff instantly clear chat for everyone online with a visible red warning,
+while keeping the client side fully vanilla-friendly. Players do not need a mod
+installed on their client; only the server needs the plugin/mod.
 
-## Supported builds
+## Features
 
-The repository uses independent Gradle builds because the supported Minecraft
-families require different Java and Gradle toolchains.
+- Clear chat for all online players with `/clearchat`, `/cc`, `/cls`, or `/wipe`
+- Optional reason support, for example `/cc spam`
+- Permission control based on operator level, tagged players, and the LAN/singleplayer host setting
+- Live config reload via `/squeegee reload`
+- Works on both Fabric and Forge targets
+- Designed for server administration and staff moderation workflows
 
-| Build | Loader | Minecraft | Java | Build command |
-| --- | --- | --- | --- | --- |
-| `fabric-26.1` | Fabric | 26.1 | 25 | `./gradlew build` |
-| `forge-1.20.1` | Forge | 1.20.1 | 17 toolchain | `./gradlew build` |
+## Commands
 
-See [the support matrix](docs/SUPPORT_MATRIX.md) for verification status.
+- `/clearchat [reason]`
+- `/cc [reason]`
+- `/cls [reason]`
+- `/wipe [reason]`
+- `/squeegee reload`
+
+The command system supports an optional custom reason, such as `/cc spam`.
+
+## Permissions and config
+
+Staff access is controlled by a combination of:
+
+- operator status
+- entity tags
+- singleplayer/LAN host ownership
+- the configuration file at `config/squeegee.json`
+
+Tagged players can use the clear-chat commands by default, but
+`permissions.allowTaggedPlayersToReload` is disabled by default. That means only
+operators, the singleplayer host, or the server console can reload config unless
+that permission is explicitly enabled.
+
+## Supported versions
+
+This project ships as separate Gradle builds for each supported Minecraft family.
+
+| Target | Loader | Minecraft | Java |
+| --- | --- | --- | --- |
+| `fabric/26.1` | Fabric | 26.1 | 25 |
+| `fabric/26.1.1` | Fabric | 26.1.1 | 25 |
+| `fabric/26.1.2` | Fabric | 26.1.2 | 25 |
+| `fabric/26.2` | Fabric | 26.2 | 25 |
+| `fabric/26.3` | Fabric | 26.3 | 25 |
+| `forge/1.20.1` | Forge | 1.20.1 | 17 toolchain |
+| `forge/26.1` | Forge | 26.1 | 25 |
+| `forge/26.1.1` | Forge | 26.1.1 | 25 |
+| `forge/26.1.2` | Forge | 26.1.2 | 25 |
+| `forge/26.2` | Forge | 26.2 | 25 |
+| `forge/26.3` | Forge | 26.3 | 25 |
+
+See [docs/SUPPORT_MATRIX.md](docs/SUPPORT_MATRIX.md) for the current verification status of each target.
+
+## Installation
+
+1. Download the matching jar for your loader and Minecraft version.
+2. Place it in your server's `mods` folder.
+3. Start or restart the server.
+4. Use the commands above as an operator or configured staff member.
 
 ## Development
 
-Run `runServer` or `runClient` from the target directory. Do not commit the
-generated `run/`, `build/`, or `.gradle/` directories. Forge development uses
-the official ForgeGradle 6 MDK and official Mojang mappings; Fabric 26.1 uses
-the unobfuscated `net.fabricmc.fabric-loom` plugin.
+For local builds and testing, run the relevant Gradle task from the target directory:
 
-The shared implementation is under `common/`. Only version-sensitive calls
-belong in the corresponding `compat/` family. The package remains
-`com.example.squeegee` pending an explicit package rename decision.
+```bash
+./gradlew build
+```
+
+Common logic is stored in `common/`, while version-specific compatibility layers live under `compat/` and the loader-specific project folders.
+
+## Notes
+
+- Forge 1.20.1 uses ForgeGradle 6 and a Java 17 toolchain.
+- Forge 26.x uses ForgeGradle 7 and Java 25.
+- Fabric targets use the standard Fabric Loom setup.
+- This repository is organized around independent target folders rather than a single universal build.
+
+## License
+
+This project is released under the CC0-1.0 license.

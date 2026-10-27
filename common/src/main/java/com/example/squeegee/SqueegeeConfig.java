@@ -41,6 +41,7 @@ public final class SqueegeeConfig {
         public boolean allowOps = true;
         public int minOpLevel = 2;
         public boolean singleplayerHostAlwaysAllowed = true;
+        public boolean allowTaggedPlayersToReload = false;
     }
 
     public SqueegeeConfig() {
@@ -75,10 +76,15 @@ public final class SqueegeeConfig {
                 LOGGER.error("[Squeegee] Could not read {}; keeping previous settings", file);
                 return;
             }
-            removeNullFields(document.getAsJsonObject());
+            JsonObject object = document.getAsJsonObject();
+            removeNullFields(object);
+            boolean addedDefaults = addMissingConfigFields(object);
             SqueegeeConfig loaded = GSON.fromJson(document, SqueegeeConfig.class);
             loaded.fillMissingFields();
             current = loaded;
+            if (addedDefaults) {
+                saveJson(file, object);
+            }
         } catch (IOException | RuntimeException e) {
             // Keep the previous settings and leave the broken file untouched so nothing is lost.
             LOGGER.error("[Squeegee] Could not read {}; keeping previous settings", file, e);
@@ -127,11 +133,40 @@ public final class SqueegeeConfig {
         nullFields.forEach(object::remove);
     }
 
+    private static boolean addMissingConfigFields(JsonObject object) {
+        JsonObject permissions;
+        if (!object.has("permissions")) {
+            permissions = new JsonObject();
+            object.add("permissions", permissions);
+        } else if (object.get("permissions").isJsonObject()) {
+            permissions = object.getAsJsonObject("permissions");
+        } else {
+            return false;
+        }
+
+        if (permissions.has("allowTaggedPlayersToReload")) {
+            return false;
+        }
+        permissions.addProperty("allowTaggedPlayersToReload", false);
+        return true;
+    }
+
     private static void save(Path file, SqueegeeConfig config) {
         try {
             Files.createDirectories(file.getParent());
             try (Writer writer = Files.newBufferedWriter(file)) {
                 GSON.toJson(config, writer);
+            }
+        } catch (IOException e) {
+            LOGGER.error("[Squeegee] Could not write {}", file, e);
+        }
+    }
+
+    private static void saveJson(Path file, JsonObject document) {
+        try {
+            Files.createDirectories(file.getParent());
+            try (Writer writer = Files.newBufferedWriter(file)) {
+                GSON.toJson(document, writer);
             }
         } catch (IOException e) {
             LOGGER.error("[Squeegee] Could not write {}", file, e);

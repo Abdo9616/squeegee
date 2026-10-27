@@ -10,7 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: fabric-26.1
+        working-directory: fabric/26.1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew build --no-daemon
+
+  fabric-26:
+    name: Fabric ${{ matrix.minecraft }}
+    strategy:
+      matrix:
+        minecraft: [26.1.1, 26.1.2, 26.2, 26.3]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fabric/${{ matrix.minecraft }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -25,12 +43,30 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: forge-1.20.1
+        working-directory: forge/1.20.1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew build --no-daemon
+
+  forge-26:
+    name: Forge ${{ matrix.minecraft }}
+    strategy:
+      matrix:
+        minecraft: [26.1, 26.1.1, 26.1.2, 26.2, 26.3]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: forge/${{ matrix.minecraft }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew build --no-daemon
