@@ -8,8 +8,9 @@
 		"abdo9616"
 	],
 	"contact": {
-		"homepage": "https://github.com/abdo9616/Squeegee",
-		"sources": "https://github.com/abdo9616/Squeegee"
+		"homepage": "https://modrinth.com/project/2qInk8Nb",
+		"sources": "https://github.com/abdo9616/Squeegee",
+		"issues": "https://github.com/abdo9616/Squeegee/issues"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/squeegee/icon.png",
