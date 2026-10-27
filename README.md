@@ -2,8 +2,8 @@
 
 # Squeegee
 
-[![Get it on Modrinth](https://img.shields.io/badge/Get%20it%20on-Modrinth-black?style=for-the-badge&logo=modrinth&logoColor=00AF5C)](https://modrinth.com/project/)
-<a href="https://www.curseforge.com/minecraft/mc-mods/">
+[![Get it on Modrinth](https://img.shields.io/badge/Get%20it%20on-Modrinth-black?style=for-the-badge&logo=modrinth&logoColor=00AF5C)](https://modrinth.com/project/2qInk8Nb)
+<a href="https://www.curseforge.com/minecraft/mc-mods/squeegeeclearchat/">
   <img
     alt="Get it on CurseForge"
     src="https://img.shields.io/badge/Get%20it%20on-CurseForge-f16436?style=for-the-badge&logo=curseforge&logoColor=white"

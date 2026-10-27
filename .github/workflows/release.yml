@@ -76,18 +76,12 @@ jobs:
             java_version="25"
           fi
 
-          case "${version,,}" in
-            *alpha*) version_type="alpha" ;;
-            *beta*) version_type="beta" ;;
-            *) version_type="release" ;;
-          esac
+          version_type="beta"
 
           dependencies=""
           if [[ "$loader" == "fabric" ]]; then
             dependencies=$(cat <<'EOF'
           fabric@*(required){modrinth:P7dR8mSH}{curseforge:306612}
-          modmenu@*(optional){modrinth:mOgUt4GM}{curseforge:308702}
-          cloth-config@*(optional){modrinth:9s6osm5g}{curseforge:348521}
           EOF
           )
           fi

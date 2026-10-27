@@ -1,7 +1,7 @@
 # Squeegee
 
-[![Get it on Modrinth](https://img.shields.io/badge/Get%20it%20on-Modrinth-black?style=for-the-badge&logo=modrinth&logoColor=00AF5C)](https://modrinth.com/project/)
-<a href="https://www.curseforge.com/minecraft/mc-mods/">
+[![Get it on Modrinth](https://img.shields.io/badge/Get%20it%20on-Modrinth-black?style=for-the-badge&logo=modrinth&logoColor=00AF5C)](https://modrinth.com/project/2qInk8Nb)
+<a href="https://www.curseforge.com/minecraft/mc-mods/squeegeeclearchat/">
   <img
     alt="Get it on CurseForge"
     src="https://img.shields.io/badge/Get%20it%20on-CurseForge-f16436?style=for-the-badge&logo=curseforge&logoColor=white"
@@ -12,7 +12,7 @@ Squeegee is a lightweight server-side (and singleplayer) staff utility for clear
 
 It is designed for moderation and administrative use on Minecraft servers. The mod works on the server side only, so vanilla clients do not need any client-side installation.
 
-![screenshot](https://cdn.modrinth.com/data/cached_images/8eb3c6071fddb19b2c322c009c770972458f06f6_0.webp)# Squeegee
+![screenshot](https://cdn.modrinth.com/data/cached_images/8eb3c6071fddb19b2c322c009c770972458f06f6_0.webp)
 
 ## Commands
 
