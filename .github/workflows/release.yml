@@ -1,0 +1,199 @@
+name: Build And Publish Release
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag (e.g., v1.0.0-Beta+forge-1.20.1)"
+        required: true
+        type: string
+      name:
+        description: "Release name"
+        required: true
+        type: string
+      body:
+        description: "Changelog / release notes"
+        required: false
+        type: string
+        default: ""
+      prerelease:
+        description: "Mark as prerelease?"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release metadata from tag
+        id: meta
+        shell: bash
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name || github.event.inputs.tag || github.ref_name }}
+          RELEASE_NAME: ${{ github.event.release.name || github.event.inputs.name || github.ref_name }}
+          RELEASE_BODY: ${{ github.event.release.body || github.event.inputs.body || '' }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease || github.event.inputs.prerelease || 'false' }}
+        run: |
+          tag="${TAG_NAME}"
+          version="${tag#v}"
+          name="${RELEASE_NAME}"
+          body="${RELEASE_BODY}"
+          prerelease="${RELEASE_PRERELEASE}"
+
+          if [[ "${version,,}" == *"forge"* ]]; then
+            loader="forge"
+          elif [[ "${version,,}" == *"fabric"* ]]; then
+            loader="fabric"
+          else
+            loader="fabric"
+          fi
+
+          if [[ "${version,,}" =~ \+(forge|fabric)-([0-9]+\.[0-9]+(\.[0-9]+)?)$ ]]; then
+            minecraft_version="${BASH_REMATCH[2]}"
+          elif [[ "${version,,}" =~ (forge|fabric)-([0-9]+\.[0-9]+(\.[0-9]+)?) ]]; then
+            minecraft_version="${BASH_REMATCH[2]}"
+            loader="${BASH_REMATCH[1]}"
+          else
+            minecraft_version="$(printf '%s\n' "$version" | grep -Eo '[0-9]+\.[0-9]+(\.[0-9]+)?' | tail -n 1)"
+          fi
+
+          if [[ "$loader" == "forge" ]]; then
+            module_dir="forge/${minecraft_version}"
+            java_version="17"
+          else
+            module_dir="fabric/${minecraft_version}"
+            java_version="25"
+          fi
+
+          case "${version,,}" in
+            *alpha*) version_type="alpha" ;;
+            *beta*) version_type="beta" ;;
+            *) version_type="release" ;;
+          esac
+
+          dependencies=""
+          if [[ "$loader" == "fabric" ]]; then
+            dependencies=$(cat <<'EOF'
+          fabric@*(required){modrinth:P7dR8mSH}{curseforge:306612}
+          modmenu@*(optional){modrinth:mOgUt4GM}{curseforge:308702}
+          cloth-config@*(optional){modrinth:9s6osm5g}{curseforge:348521}
+          EOF
+          )
+          fi
+
+          {
+            echo "tag=${TAG_NAME}"
+            echo "version=${version}"
+            echo "loader=${loader}"
+            echo "minecraft=${minecraft_version}"
+            echo "module_dir=${module_dir}"
+            echo "java_version=${java_version}"
+            echo "name=${name}"
+            echo "body=${body}"
+            echo "prerelease=${prerelease}"
+            echo "version_type=${version_type}"
+            echo "dependencies<<EOF"
+            echo "${dependencies}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ steps.meta.outputs.java_version }}
+          cache: gradle
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x "${{ steps.meta.outputs.module_dir }}/gradlew"
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper/dists
+          key: ${{ runner.os }}-gradle-deps-${{ hashFiles('**/gradle.properties','**/build.gradle','**/settings.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-deps-
+
+      - name: Build Mod (retry on transient failures)
+        working-directory: ${{ steps.meta.outputs.module_dir }}
+        run: |
+          set -e
+          attempts=3
+          for i in $(seq 1 $attempts); do
+            echo "Build attempt $i/$attempts for ${{ steps.meta.outputs.loader }} ${{ steps.meta.outputs.minecraft }}"
+            if ./gradlew build --no-daemon; then
+              echo "Build succeeded on attempt $i"
+              break
+            fi
+            if [ "$i" -eq "$attempts" ]; then
+              echo "Build failed after $attempts attempts"
+              exit 1
+            fi
+            sleep_time=$((i * 5))
+            echo "Build failed — retrying in ${sleep_time}s..."
+            sleep $sleep_time
+          done
+
+      - name: Locate Release Jar
+        id: jar
+        run: |
+          jar_path="$(find "${{ steps.meta.outputs.module_dir }}/build/libs" -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' | head -n 1)"
+          if [ -z "$jar_path" ]; then
+            echo "No release jar found in ${{ steps.meta.outputs.module_dir }}/build/libs" >&2
+            exit 1
+          fi
+          jar_name="$(basename "$jar_path")"
+          echo "jar_path=$jar_path" >> "$GITHUB_OUTPUT"
+          echo "jar_name=$jar_name" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to GitHub, Modrinth & CurseForge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          # GitHub Releases
+          github-tag: ${{ steps.meta.outputs.tag }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-generate-changelog: false
+          github-prerelease: ${{ steps.meta.outputs.prerelease }}
+
+          # Modrinth
+          modrinth-id: 2qInk8Nb
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: true
+          modrinth-version-type: ${{ steps.meta.outputs.version_type }}
+          modrinth-environment: server
+
+          # CurseForge
+          curseforge-id: 1768539
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          curseforge-name: ${{ steps.jar.outputs.jar_name }}
+          curseforge-type: ${{ steps.meta.outputs.version_type }}
+
+          # Shared metadata
+          name: ${{ steps.meta.outputs.name }}
+          version: ${{ steps.meta.outputs.version }}
+          changelog: ${{ steps.meta.outputs.body }}
+          loaders: ${{ steps.meta.outputs.loader }}
+          game-versions: ${{ steps.meta.outputs.minecraft }}
+          java: ${{ steps.meta.outputs.java_version }}
+
+          # Modrinth's server-only environment supports singleplayer too.
+          # CurseForge uses dedicated-server + singleplayer for this mod.
+          curseforge-environment: dedicated-server | singleplayer
+
+          files: ${{ steps.jar.outputs.jar_path }}
+          dependencies: |
+            ${{ steps.meta.outputs.dependencies }}
