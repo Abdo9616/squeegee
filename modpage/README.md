@@ -44,6 +44,8 @@ Access is controlled through a combination of:
 Tagged players can use the clear-chat commands by default, but reloading is restricted unless explicitly allowed.
 
 ## Supported versions
+<details>
+<summary>Spoiler</summary>
 
 Fabric:
 - 26.1
@@ -61,6 +63,7 @@ Forge:
 - 26.3
 
 See the support [matrix](https://github.com/Abdo9616/squeegee/blob/main/docs/SUPPORT_MATRIX.md) in the project repository for current verification status.
+</details>
 
 ## Installation
 
