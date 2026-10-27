@@ -12,7 +12,7 @@ Squeegee is a lightweight server-side (and singleplayer) staff utility for clear
 
 It is designed for moderation and administrative use on Minecraft servers. The mod works on the server side only, so vanilla clients do not need any client-side installation.
 
-<img src="https://github.com/Abdo9616/squeegee/modpage/screenshot.png" alt="Squeegee screenshot" width="960" />
+<img src="https://github.com/Abdo9616/squeegee/blob/main/modpage/screenshot.png" alt="Squeegee screenshot" width="960" />
 
 ## Commands
 
